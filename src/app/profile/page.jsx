@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { FiUser, FiMail, FiPhone, FiMapPin, FiEdit, FiBook, FiAward, FiBriefcase, FiCheck, FiClock } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiMapPin, FiEdit, FiBook, FiAward, FiBriefcase, FiCheck, FiClock, FiBookOpen } from 'react-icons/fi';
 import { useAuthStore } from '@/store/authStore';
 import { useBatchStore } from '@/store/batchStore';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import ProfileSkeleton from '@/components/Loading/profile-skelton';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -65,12 +66,8 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        </main>
+       
+        <ProfileSkeleton />
         <Footer />
       </div>
     );
@@ -78,7 +75,7 @@ export default function ProfilePage() {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+     
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Profile Header */}

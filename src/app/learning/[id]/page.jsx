@@ -13,7 +13,7 @@ import ProgressSummary from '@/components/learning/ProgressSummary';
 import Footer from '@/components/Footer';
 import { use } from 'react';
 import { fetchLearningPageData, selectInitialTask, handleLearningError } from '@/lib/learningUtils';
-
+import LearningPageLoadingSkeleton from '@/components/Loading/Learning-page-loading';
 export default function LearningPage({ params }) {
   // Unwrap params using React.use()
   const unwrappedParams = use(params);
@@ -71,6 +71,64 @@ export default function LearningPage({ params }) {
         
         console.log(`Fetching learning page data for batch: ${batchId}, user: ${user._id}`);
         
+        // Try to retrieve data from sessionStorage first
+        const cachedData = sessionStorage.getItem(`learning_${batchId}_${user._id}`);
+        if (cachedData) {
+          try {
+            const parsedData = JSON.parse(cachedData);
+            console.log("Retrieved cached learning data from sessionStorage");
+            
+            // Check if the cached data is still valid (not too old)
+            const cacheTime = parsedData.timestamp || 0;
+            const currentTime = new Date().getTime();
+            const cacheMaxAge = 30 * 60 * 1000; // 30 minutes
+            
+            if (currentTime - cacheTime < cacheMaxAge) {
+              // Set enrollment data from cache
+              setIsEnrolled(true);
+              setEnrollment(parsedData.enrollment);
+              
+              // Set batch data from cache
+              setBatch(parsedData.batch);
+              
+              // Set task data from cache
+              setTasks(parsedData.tasks);
+              setTasksByDay(parsedData.tasksByDay);
+              setCompletedTasks(parsedData.progress.completedTasks || []);
+              setUserProgress(parsedData.progress.progress || 0);
+              
+              // Select initial task from cache
+              if (parsedData.tasks && parsedData.tasks.length > 0 && !currentTask) {
+                const initialTask = selectInitialTask(parsedData.tasks, parsedData.progress);
+                setCurrentTask(initialTask);
+              }
+              
+              setIsInitialized(true);
+              setIsLoading(false);
+              
+              // Also fetch fresh data in the background
+              fetchFreshData();
+              return;
+            } else {
+              console.log("Cached data expired, fetching fresh data");
+            }
+          } catch (e) {
+            console.error("Error parsing cached data, fetching fresh data", e);
+          }
+        }
+        
+        // Fetch fresh data if no valid cache exists
+        fetchFreshData();
+      } catch (error) {
+        console.error('Error loading learning page:', error);
+        handleLearningError(error);
+        setIsLoading(false);
+      }
+    };
+    
+    // Function to fetch fresh data from API
+    const fetchFreshData = async () => {
+      try {
         // Use the new utility function to fetch all data at once
         const result = await fetchLearningPageData(batchId, user._id);
         
@@ -107,9 +165,19 @@ export default function LearningPage({ params }) {
           setCurrentTask(initialTask);
         }
         
+        // Cache the data in sessionStorage with timestamp
+        const cacheData = {
+          ...result,
+          timestamp: new Date().getTime()
+        };
+        sessionStorage.setItem(
+          `learning_${batchId}_${user._id}`, 
+          JSON.stringify(cacheData)
+        );
+        
         setIsInitialized(true);
       } catch (error) {
-        console.error('Error loading learning page:', error);
+        console.error('Error fetching fresh learning page data:', error);
         handleLearningError(error);
       } finally {
         setIsLoading(false);
@@ -160,6 +228,46 @@ export default function LearningPage({ params }) {
         } else {
           toast.success('Task marked as incomplete');
         }
+        
+        // Update the cached data in sessionStorage
+        const cachedDataKey = `learning_${batchId}_${user._id}`;
+        const cachedData = sessionStorage.getItem(cachedDataKey);
+        
+        if (cachedData) {
+          try {
+            const parsedData = JSON.parse(cachedData);
+            
+            // Update completedTasks in the cached progress data
+            if (parsedData.progress) {
+              if (isCompleted) {
+                // Add task to completedTasks if not already there
+                if (!parsedData.progress.completedTasks.includes(currentTask._id)) {
+                  parsedData.progress.completedTasks.push(currentTask._id);
+                }
+              } else {
+                // Remove task from completedTasks
+                parsedData.progress.completedTasks = parsedData.progress.completedTasks.filter(
+                  id => id !== currentTask._id
+                );
+              }
+              
+              // Update progress percentage
+              if (parsedData.tasks && parsedData.tasks.length > 0) {
+                parsedData.progress.progress = Math.round(
+                  (parsedData.progress.completedTasks.length / parsedData.tasks.length) * 100
+                );
+              }
+              
+              // Update the timestamp
+              parsedData.timestamp = new Date().getTime();
+              
+              // Save updated data back to sessionStorage
+              sessionStorage.setItem(cachedDataKey, JSON.stringify(parsedData));
+            }
+          } catch (e) {
+            console.error("Error updating cached task completion data", e);
+          }
+        }
       }
       
       return success;
@@ -174,14 +282,7 @@ export default function LearningPage({ params }) {
   if (isLoading || tasksLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            <span className="ml-3 text-gray-700">Loading course content...</span>
-          </div>
-        </main>
-        <Footer />
+        <LearningPageLoadingSkeleton />
       </div>
     );
   }
@@ -229,7 +330,8 @@ export default function LearningPage({ params }) {
     );
   }
   
-  if (!batch) {
+  // Only show "Course Not Found" if we've already tried to fetch data (isInitialized) and no batch was found
+  if (!batch && isInitialized) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
@@ -243,6 +345,22 @@ export default function LearningPage({ params }) {
             >
               Back to Courses
             </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  // If we haven't initialized yet and don't have batch data, show loading
+  if (!batch && !isInitialized) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <span className="ml-3 text-gray-700">Loading course content...</span>
           </div>
         </main>
         <Footer />
@@ -273,7 +391,8 @@ export default function LearningPage({ params }) {
           completedTasksCount={completedTasks.length}
           totalTasksCount={tasks.length}
         />
-        
+       
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Task sidebar */}
           <div className="lg:col-span-1 order-2 lg:order-1">

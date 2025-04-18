@@ -10,7 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useBatchStore } from '@/store/batchStore';
 import { fetchBatches, checkEnrollment, fetchUserEnrollments } from '@/lib/fetchUtils';
 import Footer from '@/components/Footer';
-
+import CourseGridSkeleton from '@/components/Loading/Course';
 export default function CoursesPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,7 +91,23 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-12">
+       
+      
+        {/* Course List */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <CourseGridSkeleton />
+          </div>
+        ) : filteredBatches.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <p className="text-gray-500 text-lg">No courses found matching your criteria.</p>
+            <p className="text-gray-400">Try adjusting your search or filter options.</p>
+          </div>
+        ) : (
+         
+         <div>
+           <div>
+           <div className="mb-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Explore Our Courses
           </h1>
@@ -143,19 +159,9 @@ export default function CoursesPage() {
             </div>
           </div>
         </div>
-        
-        {/* Course List */}
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : filteredBatches.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-500 text-lg">No courses found matching your criteria.</p>
-            <p className="text-gray-400">Try adjusting your search or filter options.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredBatches.map(batch => (
               <div 
                 key={batch._id}
@@ -219,7 +225,8 @@ export default function CoursesPage() {
                 </div>
               </div>
             ))}
-          </div>
+        </div>
+         </div>
         )}
       </main>
       

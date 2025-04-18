@@ -107,17 +107,7 @@ export default function Navbar() {
               <span>Courses</span>
             </Link>
             
-            <Link 
-              href="/certificates" 
-              className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                isActive('/certificates') 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <FiAward className="mr-1" />
-              <span>Certificates</span>
-            </Link>
+           
             
             {isLoggedIn && user ? (
               <div className="relative ml-3" ref={userMenuRef}>
@@ -151,7 +141,7 @@ export default function Navbar() {
                       My Courses
                     </Link>
                     <Link 
-                      href="/my-certificates" 
+                      href="/certificates" 
                       className={`block px-4 py-2 text-sm ${
                         isActive('/my-certificates') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
                       }`}
