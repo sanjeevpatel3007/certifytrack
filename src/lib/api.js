@@ -10,6 +10,9 @@ export const fetchApi = async (url, options = {}) => {
   const { method = 'GET', body } = options;
   
   try {
+    // Make sure URL has the proper API prefix
+    const apiUrl = url.startsWith('/api/') ? url : `/api/${url}`;
+    
     const fetchOptions = {
       method,
       headers: {
@@ -21,7 +24,7 @@ export const fetchApi = async (url, options = {}) => {
       fetchOptions.body = JSON.stringify(body);
     }
     
-    const response = await fetch(url, fetchOptions);
+    const response = await fetch(apiUrl, fetchOptions);
     const data = await response.json();
     
     if (!response.ok) {
