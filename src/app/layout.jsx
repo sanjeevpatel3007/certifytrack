@@ -20,16 +20,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-slate-50`}
         suppressHydrationWarning
       >
         <ToastProvider />
         <Navbar />
-        <main className="container mx-auto p-4">
+        <div className="flex-grow">
           {children}
-        </main>
+        </div>
       </body>
     </html>
   );

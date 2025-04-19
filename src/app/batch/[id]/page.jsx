@@ -14,7 +14,6 @@ import {
   FiArrowRight,
   FiBookOpen
 } from 'react-icons/fi';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useAuthStore } from '@/store/authStore';
 import { useBatchStore } from '@/store/batchStore';
@@ -163,7 +162,7 @@ export default function BatchDetailPage({ params }) {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}

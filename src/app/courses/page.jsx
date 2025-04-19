@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { FiCalendar, FiUsers, FiClock, FiSearch, FiFilter, FiArrowRight } from 'react-icons/fi';
+import { FiCalendar, FiUsers, FiClock, FiSearch, FiFilter, FiArrowRight, FiBookOpen, FiAward, FiTag } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { useBatchStore } from '@/store/batchStore';
 import { fetchBatches, checkEnrollment, fetchUserEnrollments } from '@/lib/fetchUtils';
 import Footer from '@/components/Footer';
 import CourseGridSkeleton from '@/components/Loading/Course';
+
 export default function CoursesPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,39 +86,49 @@ export default function CoursesPage() {
     return matchesSearch;
   });
   
-  // Console logs to help debugging filteredBatches
-  console.log('Batches in state:', batches.length);
-  
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="container mx-auto px-4 py-8">
-       
-      
-        {/* Course List */}
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <CourseGridSkeleton />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <main className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl mb-12 overflow-hidden">
+          <div className="absolute top-0 right-0 w-1/3 h-full opacity-10">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#ffffff" d="M40.8,-70.3C52.6,-64.5,61.9,-52.8,67.1,-39.9C72.3,-27,73.3,-13.5,72.8,-0.3C72.2,12.9,70.1,25.9,63.4,36.1C56.7,46.4,45.5,54,33.3,60.9C21.1,67.8,7.9,74.1,-5.4,74.3C-18.7,74.5,-37.4,68.7,-49.1,57.7C-60.8,46.8,-65.5,30.8,-70.9,14.9C-76.4,-1,-82.6,-16.8,-79.8,-31.1C-77,-45.4,-65.2,-58.2,-51.1,-62.8C-37,-67.5,-20.7,-64.1,-4.8,-56.7C11.1,-49.4,29,-76.1,40.8,-70.3Z" transform="translate(100 100)" />
+            </svg>
           </div>
-        ) : filteredBatches.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-500 text-lg">No courses found matching your criteria.</p>
-            <p className="text-gray-400">Try adjusting your search or filter options.</p>
-          </div>
-        ) : (
-         
-         <div>
-           <div>
-           <div className="mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Explore Our Courses
+          <div className="relative z-10 py-12 px-8 md:px-16 text-white">
+            <span className="inline-block bg-white/20 rounded-full px-3 py-1 text-sm font-medium backdrop-blur-sm mb-4">
+              <FiBookOpen className="inline-block mr-1" /> Expand Your Knowledge
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Discover Your Next <span className="text-yellow-300">Learning</span> Opportunity
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl">
+            <p className="text-lg md:text-xl max-w-2xl opacity-90 mb-6">
             Browse our selection of professional courses designed to help you advance your career and gain valuable skills.
           </p>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                className="bg-white text-indigo-700 hover:bg-yellow-300 transition-colors duration-300 font-medium rounded-lg px-6 py-3 flex items-center"
+                onClick={() => {
+                  document.getElementById('course-grid').scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <FiAward className="mr-2" /> View All Courses
+              </button>
+              {isLoggedIn && (
+                <button 
+                  className="bg-transparent hover:bg-white/20 border border-white/50 backdrop-blur-sm transition-colors duration-300 font-medium rounded-lg px-6 py-3 flex items-center"
+                  onClick={() => setFilter('enrolled')}
+                >
+                  <FiBookOpen className="mr-2" /> My Enrolled Courses
+                </button>
+              )}
+            </div>
+          </div>
         </div>
         
         {/* Search and Filter */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 transform -mt-6 md:-mt-10 relative z-20">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-grow relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -159,48 +170,90 @@ export default function CoursesPage() {
             </div>
           </div>
         </div>
+
+        {/* Course List */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <CourseGridSkeleton />
+          </div>
+        ) : filteredBatches.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+              <FiSearch className="text-gray-400 w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">No courses found</h3>
+            <p className="text-gray-500 max-w-md mx-auto mb-6">
+              We couldn't find any courses matching your criteria. Try adjusting your search or filter options.
+            </p>
+            <button 
+              onClick={() => {
+                setSearchTerm('');
+                setFilter('all');
+              }}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Clear Filters
+            </button>
+          </div>
+        ) : (
+          <div id="course-grid">
+            {filter !== 'all' && (
+              <div className="flex items-center gap-2 mb-6 text-lg text-gray-700">
+                <FiTag className="text-blue-600" />
+                <span className="font-medium">
+                  {filter === 'enrolled' ? 'My Enrolled Courses' : 'Available Courses'}
+                </span>
+                <span className="text-gray-500 text-sm ml-2">
+                  ({filteredBatches.length} {filteredBatches.length === 1 ? 'course' : 'courses'})
+                </span>
            </div>
+            )}
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredBatches.map(batch => (
               <div 
                 key={batch._id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group"
               >
                 <div className="relative h-48">
                   <Image
                     src={batch.bannerImage}
                     alt={batch.title}
                     fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                    {isLoggedIn && isEnrolled(batch._id) && (
+                      <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-md">
+                        Enrolled
+                      </div>
+                    )}
                   <div className="absolute bottom-0 left-0 p-4 text-white">
                     <h2 className="text-xl font-bold line-clamp-2">{batch.title}</h2>
                     <p className="text-sm opacity-90">{batch.courseName}</p>
                   </div>
                 </div>
                 
-                <div className="p-4">
+                  <div className="p-5">
                   <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <FiCalendar className="mr-1" />
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FiCalendar className="mr-1 text-blue-500" />
                       <span>{formatDate(batch.startDate)}</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <FiClock className="mr-1" />
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FiClock className="mr-1 text-blue-500" />
                       <span>{batch.durationDays} days</span>
                     </div>
                   </div>
                   
-                  <div className="mb-4">
-                    <div className="flex items-center mb-2">
+                    <div className="mb-5">
+                      <div className="flex items-center mb-3">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-2">
                         <FiUsers />
+                        </div>
+                        <p className="text-gray-700 font-medium">{batch.instructor}</p>
                       </div>
-                      <p className="text-gray-700">{batch.instructor}</p>
-                    </div>
-                    <p className="text-gray-500 text-sm line-clamp-2">
+                      <p className="text-gray-600 text-sm line-clamp-2">
                       {batch.description}
                     </p>
                   </div>
@@ -208,7 +261,7 @@ export default function CoursesPage() {
                   {isLoggedIn && isEnrolled(batch._id) ? (
                     <Link 
                       href={`/batch/${batch._id}`} 
-                      className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors"
+                        className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition-colors"
                     >
                       <span>Continue Learning</span>
                       <FiArrowRight className="ml-2" />
@@ -216,7 +269,7 @@ export default function CoursesPage() {
                   ) : (
                     <Link 
                       href={`/batch/${batch._id}`} 
-                      className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors"
+                        className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-colors"
                     >
                       <span>View Details</span>
                       <FiArrowRight className="ml-2" />
