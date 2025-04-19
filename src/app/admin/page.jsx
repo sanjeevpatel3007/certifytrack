@@ -71,6 +71,16 @@ export default function AdminDashboard() {
             description="View and manage user accounts" 
             link="/admin/users" 
           />
+          <QuickActionCard 
+            title="Batch Enrollments" 
+            description="View all users enrolled in specific batches" 
+            link="/admin/enrollments" 
+          />
+          <QuickActionCard 
+            title="Review Submissions" 
+            description="Review, approve or reject user task submissions" 
+            link="/admin/submissions" 
+          />
         </div>
       </div>
     </AdminLayout>

@@ -152,6 +152,22 @@ export default function AdminSidebar() {
         </Link>
         
         <Link 
+          href="/admin/submissions"
+          className={`flex items-center py-3 px-4 rounded ${isActive('/admin/submissions')} transition-colors`}
+        >
+          <FiCheckSquare size={collapsed ? 22 : 18} />
+          {!collapsed && <span className="ml-3">Submissions</span>}
+        </Link>
+        
+        <Link 
+          href="/admin/enrollments"
+          className={`flex items-center py-3 px-4 rounded ${isActive('/admin/enrollments')} transition-colors`}
+        >
+          <FiUsers size={collapsed ? 22 : 18} />
+          {!collapsed && <span className="ml-3">Enrollments</span>}
+        </Link>
+        
+        <Link 
           href="/admin/settings"
           className={`flex items-center py-3 px-4 rounded ${isActive('/admin/settings')} transition-colors`}
         >

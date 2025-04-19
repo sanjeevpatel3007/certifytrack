@@ -124,39 +124,71 @@ export default function Navbar() {
                 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-100">
-                    <Link 
-                      href="/profile" 
-                      className={`block px-4 py-2 text-sm ${
-                        isActive('/profile') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      Your Profile
-                    </Link>
-                    <Link 
-                      href="/my-courses" 
-                      className={`block px-4 py-2 text-sm ${
-                        isActive('/my-courses') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      My Courses
-                    </Link>
-                    <Link 
-                      href="/certificates" 
-                      className={`block px-4 py-2 text-sm ${
-                        isActive('/my-certificates') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      My Certificates
-                    </Link>
-                    {user.role === 'admin' && (
-                      <Link 
-                        href="/admin" 
-                        className={`block px-4 py-2 text-sm ${
-                          isActive('/admin') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        Admin Dashboard
-                      </Link>
+                    {user.role === 'admin' ? (
+                      <>
+                        <Link 
+                          href="/admin" 
+                          className={`flex items-center px-4 py-2 text-sm ${
+                            isActive('/admin') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <FiUser className="mr-2" />
+                          Admin Dashboard
+                        </Link>
+                        <Link 
+                          href="/admin/settings" 
+                          className={`flex items-center px-4 py-2 text-sm ${
+                            isActive('/admin/settings') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <FiUser className="mr-2" />
+                          Settings
+                        </Link>
+                        <Link 
+                          href="/" 
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <FiHome className="mr-2" />
+                          Go to Website
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link 
+                          href="/profile" 
+                          className={`block px-4 py-2 text-sm ${
+                            isActive('/profile') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          Your Profile
+                        </Link>
+                        <Link 
+                          href="/my-courses" 
+                          className={`block px-4 py-2 text-sm ${
+                            isActive('/my-courses') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          My Courses
+                        </Link>
+                        <Link 
+                          href="/certificates" 
+                          className={`block px-4 py-2 text-sm ${
+                            isActive('/my-certificates') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          My Certificates
+                        </Link>
+                        {user.role === 'admin' && (
+                          <Link 
+                            href="/admin" 
+                            className={`block px-4 py-2 text-sm ${
+                              isActive('/admin') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            Admin Dashboard
+                          </Link>
+                        )}
+                      </>
                     )}
                     <div className="border-t border-gray-100 my-1"></div>
                     <button
