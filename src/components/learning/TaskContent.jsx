@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { FiCheck, FiClock, FiVideo, FiFileText, FiLink, FiDownload, FiCode, FiImage, FiFile, 
-         FiUpload, FiEdit, FiChevronDown, FiChevronUp, FiCheckCircle, FiTrash2 } from 'react-icons/fi';
+         FiUpload, FiEdit, FiChevronDown, FiChevronUp, FiCheckCircle, FiTrash2, FiLock } from 'react-icons/fi';
 import { useAuthStore } from '@/store/authStore';
 import { useSubmissionStore } from '@/store/submissionStore';
 import TaskSubmission from './TaskSubmission';
@@ -108,6 +108,48 @@ export default function TaskContent({ task, isCompleted, onToggleComplete }) {
         <p className="text-gray-600">
           Please select a task from the sidebar to view its content.
         </p>
+      </div>
+    );
+  }
+
+  // Handle placeholder "Coming Soon" tasks
+  if (task.isPlaceholder) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          {/* Placeholder header */}
+          <div className="relative h-48 bg-gradient-to-r from-gray-600 to-gray-800">
+            <div className="absolute inset-0 flex flex-col justify-end p-6">
+              <div className="flex items-center mb-2">
+                <div className="px-3 py-1 text-xs font-medium rounded-full bg-gray-300 text-gray-700">
+                  Coming Soon
+                </div>
+                <div className="text-xs text-white ml-3">Day {task.dayNumber || 1}</div>
+              </div>
+              <h1 className="text-2xl font-bold text-white">Content Coming Soon</h1>
+            </div>
+          </div>
+
+          {/* Placeholder content */}
+          <div className="p-6">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">Coming Soon</h2>
+              <p className="text-gray-700">
+                This content will be available at a later date. Please check back later.
+              </p>
+            </div>
+            
+            <div className="mt-8 flex justify-center">
+              <div className="max-w-md p-6 bg-gray-50 rounded-lg text-center">
+                <FiLock className="mx-auto mb-4 text-gray-400 text-4xl" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">Content Locked</h3>
+                <p className="text-gray-600">
+                  The instructor has not released this content yet. Please continue with other available tasks.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -341,7 +383,7 @@ export default function TaskContent({ task, isCompleted, onToggleComplete }) {
 
           {/* Task actions */}
           <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-3 justify-between">
-            <button
+            {/* <button
               onClick={handleToggleCompletion}
               disabled={isLoading}
               className={`
@@ -372,7 +414,7 @@ export default function TaskContent({ task, isCompleted, onToggleComplete }) {
                   <span>Mark as Complete</span>
                 </span>
               )}
-            </button>
+            </button> */}
             
             {/* Submission action buttons */}
             <div className="flex gap-2">

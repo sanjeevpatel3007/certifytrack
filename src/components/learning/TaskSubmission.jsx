@@ -55,27 +55,32 @@ export default function TaskSubmission({ task, user, batchId, onSubmitComplete }
     if (selectedFiles.length === 0) return;
     
     // Show loading toast
-    const loadingToast = toast.loading('Uploading file...');
+    const loadingToast = toast.loading(`Uploading ${selectedFiles.length} file(s)...`);
     
     try {
-      // Upload each file
-      const uploadPromises = selectedFiles.map(file => uploadFile(file));
-      const uploadedFiles = await Promise.all(uploadPromises);
+      for (const file of selectedFiles) {
+        try {
+          // Upload each file individually
+          const uploadedFile = await uploadFile(file);
+          
+          // Add to files state if upload was successful
+          if (uploadedFile) {
+            setFiles(prevFiles => [...prevFiles, uploadedFile]);
+          }
+        } catch (fileError) {
+          console.error(`Error uploading file ${file.name}:`, fileError);
+          // Continue with other files even if one fails
+        }
+      }
       
-      // Filter out any failed uploads
-      const successfulUploads = uploadedFiles.filter(file => file !== null);
-      
-      // Update files state
-      setFiles(prevFiles => [...prevFiles, ...successfulUploads]);
-      
-      // Show success toast
-      toast.success(`Uploaded ${successfulUploads.length} file(s) successfully`);
+      toast.success(`Uploaded files successfully`, { id: loadingToast });
     } catch (error) {
-      console.error('Error uploading files:', error);
-      toast.error('Failed to upload files');
+      console.error('Error in handleFileChange:', error);
+      toast.error('There was a problem uploading one or more files', { id: loadingToast });
     } finally {
-      // Dismiss loading toast
+      // Dismiss loading toast if it's still showing
       toast.dismiss(loadingToast);
+      
       // Reset the file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -112,13 +117,33 @@ export default function TaskSubmission({ task, user, batchId, onSubmitComplete }
     setIsSubmitting(true);
     
     try {
+      // Validate files to ensure correct structure
+      const validatedFiles = files.map(file => ({
+        url: file.url || '',
+        name: file.name || 'Unnamed file',
+        type: file.type || 'unknown',
+        size: typeof file.size === 'number' ? file.size : 0,
+        publicId: file.publicId || ''
+      }));
+      
+      // Validate links to ensure correct structure
+      const validatedLinks = links.map(link => ({
+        url: link.url || '',
+        description: link.description || ''
+      }));
+      
+      // Check if files are properly formatted
+      if (validatedFiles.length > 0) {
+        console.log('Submitting task with files:', validatedFiles);
+      }
+      
       const submissionData = {
         taskId: task._id,
         userId: user._id,
         batchId,
-        content,
-        files,
-        links
+        content: content || '',
+        files: validatedFiles,
+        links: validatedLinks
       };
       
       let result;
@@ -135,10 +160,12 @@ export default function TaskSubmission({ task, user, batchId, onSubmitComplete }
         toast.success(existingSubmission ? 'Submission updated successfully!' : 'Task submitted successfully!');
         setExistingSubmission(result);
         onSubmitComplete?.(result);
+      } else {
+        toast.error('Submission failed. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting task:', error);
-      toast.error('Failed to submit task');
+      toast.error(`Failed to submit task: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

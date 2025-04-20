@@ -291,7 +291,6 @@ export default function LearningPage({ params }) {
   if (!isLoggedIn && !isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">Authentication Required</h1>
@@ -312,7 +311,6 @@ export default function LearningPage({ params }) {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">Error Loading Course</h1>
@@ -334,7 +332,6 @@ export default function LearningPage({ params }) {
   if (!batch && isInitialized) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">Course Not Found</h1>
@@ -390,6 +387,7 @@ export default function LearningPage({ params }) {
           progress={userProgress}
           completedTasksCount={completedTasks.length}
           totalTasksCount={tasks.length}
+          tasksByDay={tasksByDay}
         />
        
 

@@ -28,6 +28,8 @@ export async function POST(request) {
     const originalFilename = file.name;
     const fileType = file.type;
     
+    console.log(`Processing file upload: ${originalFilename} (${fileType}), size: ${file.size} bytes`);
+    
     // Generate a unique folder path based on current date
     const now = new Date();
     const folderPath = `task-submissions/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
@@ -45,21 +47,30 @@ export async function POST(request) {
             console.error('Cloudinary upload error:', error);
             resolve(NextResponse.json({ 
               success: false, 
-              error: 'Failed to upload file' 
+              error: 'Failed to upload file to cloud storage',
+              details: error.message 
             }, { status: 500 }));
             return;
           }
           
-          // Return successful response with file details
+          console.log('File uploaded successfully to Cloudinary:', {
+            publicId: result.public_id,
+            url: result.secure_url,
+            size: file.size
+          });
+          
+          // Return successful response with file details in consistent format
+          const fileObject = {
+            url: result.secure_url,
+            name: originalFilename,
+            type: fileType,
+            size: file.size,
+            publicId: result.public_id
+          };
+          
           resolve(NextResponse.json({
             success: true,
-            file: {
-              url: result.secure_url,
-              name: originalFilename,
-              type: fileType,
-              size: file.size,
-              publicId: result.public_id
-            }
+            file: fileObject
           }));
         }
       );
@@ -69,10 +80,11 @@ export async function POST(request) {
       uploadStream.end();
     });
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error processing file upload:', error);
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 });
   }
 } 

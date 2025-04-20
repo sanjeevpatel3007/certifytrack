@@ -12,7 +12,8 @@ import {
   FiEdit,
   FiBook,
   FiCode,
-  FiClipboard
+  FiClipboard,
+  FiLock
 } from 'react-icons/fi';
 import { getTaskCompletionStatus } from '@/lib/fetchUtils';
 
@@ -56,6 +57,8 @@ export default function TaskSidebar({
         return <FiBook className="mr-2 flex-shrink-0" />;
       case 'project': 
         return <FiCode className="mr-2 flex-shrink-0" />;
+      case 'coming-soon': 
+        return <FiLock className="mr-2 flex-shrink-0" />;
       default: 
         return <FiFileText className="mr-2 flex-shrink-0" />;
     }
@@ -119,21 +122,28 @@ export default function TaskSidebar({
                 {day.tasks.map((task) => {
                   const isCompleted = completedTasks.includes(task._id);
                   const isActive = currentTaskId === task._id;
+                  const isPlaceholder = task.isPlaceholder;
                   
                   return (
                     <button
                       key={task._id}
-                      onClick={() => onSelectTask(task)}
+                      onClick={() => !isPlaceholder && onSelectTask(task)}
+                      disabled={isPlaceholder}
                       className={`
                         w-full flex items-center p-2 rounded-md text-left
                         ${isActive ? 'bg-blue-50' : 'hover:bg-gray-50'}
-                        ${isCompleted ? 'text-green-600' : 'text-gray-700'}
+                        ${isCompleted ? 'text-green-600' : isPlaceholder ? 'text-gray-400' : 'text-gray-700'}
+                        ${isPlaceholder ? 'cursor-not-allowed opacity-70' : ''}
                       `}
                     >
                       <div className="w-5 h-5 flex-shrink-0 mr-3">
                         {isCompleted ? (
                           <div className="w-5 h-5 rounded-full flex items-center justify-center bg-green-100 text-green-600">
                             <FiCheck className="w-3 h-3" />
+                          </div>
+                        ) : isPlaceholder ? (
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center bg-gray-100 text-gray-400">
+                            <FiLock className="w-3 h-3" />
                           </div>
                         ) : (
                           <div className="w-5 h-5 rounded-full flex items-center justify-center border border-gray-300">

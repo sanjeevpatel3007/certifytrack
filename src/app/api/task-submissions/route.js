@@ -49,6 +49,20 @@ export async function POST(request) {
     const body = await request.json();
     const { taskId, userId, batchId, content, files, links } = body;
     
+    console.log('Received submission data:', { 
+      taskId, 
+      userId, 
+      batchId, 
+      contentLength: content?.length || 0,
+      files: files ? `Files array with ${files.length} items` : 'No files',
+      links: links ? `Links array with ${links.length} items` : 'No links'
+    });
+    
+    // Debug log for files format
+    if (files && files.length > 0) {
+      console.log('First file structure:', JSON.stringify(files[0], null, 2));
+    }
+    
     // Validation
     if (!taskId || !userId || !batchId) {
       return NextResponse.json({ 
@@ -75,53 +89,108 @@ export async function POST(request) {
       }, { status: 403 });
     }
     
+    // Validate files array format if provided
+    let validatedFiles = [];
+    if (files && Array.isArray(files)) {
+      validatedFiles = files.filter(file => {
+        // Check if file has necessary properties
+        return file && typeof file === 'object' && file.url && typeof file.url === 'string';
+      }).map(file => ({
+        url: file.url || '',
+        name: file.name || 'Unnamed file',
+        type: file.type || 'unknown',
+        size: file.size ? Number(file.size) : 0,
+        publicId: file.publicId || ''
+      }));
+    }
+    
+    // Validate links array format if provided
+    let validatedLinks = [];
+    if (links && Array.isArray(links)) {
+      validatedLinks = links.filter(link => {
+        // Check if link has necessary properties
+        return link && typeof link === 'object' && link.url && typeof link.url === 'string';
+      }).map(link => ({
+        url: link.url || '',
+        description: link.description || ''
+      }));
+    }
+    
     // Check if a submission already exists
     let submission = await TaskSubmission.findOne({ taskId, userId });
     
     if (submission) {
-      // If submission exists, update it and add to history
-      const version = (submission.history?.length || 0) + 1;
-      
-      // Add current version to history
-      submission.history.push({
-        version,
-        content: submission.content,
-        files: submission.files,
-        links: submission.links,
-        submittedAt: new Date()
-      });
-      
-      // Update with new content
-      submission.content = content || '';
-      submission.files = files || [];
-      submission.links = links || [];
-      submission.submittedAt = new Date();
-      submission.status = 'pending'; // Reset to pending on resubmission
-      
-      await submission.save();
+      try {
+        // If submission exists, update it and add to history
+        const version = (submission.history?.length || 0) + 1;
+        
+        // Add current version to history
+        submission.history.push({
+          version,
+          content: submission.content || '',
+          files: submission.files || [],
+          links: submission.links || [],
+          submittedAt: new Date()
+        });
+        
+        // Update with new content
+        submission.content = content || '';
+        submission.files = validatedFiles;
+        submission.links = validatedLinks;
+        submission.submittedAt = new Date();
+        submission.status = 'pending'; // Reset to pending on resubmission
+        
+        await submission.save();
+      } catch (error) {
+        console.error('Error updating existing submission:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: `Error updating submission: ${error.message}`,
+          details: error.stack
+        }, { status: 500 });
+      }
     } else {
-      // Create new submission
-      submission = await TaskSubmission.create({
-        taskId,
-        userId,
-        batchId,
-        content: content || '',
-        files: files || [],
-        links: links || [],
-        submittedAt: new Date(),
-        history: []
-      });
+      try {
+        // Create new submission document
+        const submissionData = {
+          taskId,
+          userId,
+          batchId,
+          content: content || '',
+          files: validatedFiles,
+          links: validatedLinks,
+          submittedAt: new Date(),
+          history: []
+        };
+        
+        console.log('Creating new submission with data:', JSON.stringify(submissionData, null, 2));
+        
+        // Create new submission using the validated data
+        submission = await TaskSubmission.create(submissionData);
+      } catch (error) {
+        console.error('Error creating new submission:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: `Error creating submission: ${error.message}`,
+          details: error.stack
+        }, { status: 500 });
+      }
     }
     
     // Update the task completion in enrollment
-    if (!enrollment.completedTasks.includes(taskId)) {
-      enrollment.completedTasks.push(taskId);
-      
-      // Recalculate progress
-      const totalTasks = await Task.countDocuments({ batchId });
-      enrollment.progress = Math.round((enrollment.completedTasks.length / totalTasks) * 100);
-      
-      await enrollment.save();
+    try {
+      if (!enrollment.completedTasks.includes(taskId)) {
+        enrollment.completedTasks.push(taskId);
+        
+        // Recalculate progress
+        const totalTasks = await Task.countDocuments({ batchId });
+        enrollment.progress = Math.round((enrollment.completedTasks.length / totalTasks) * 100);
+        
+        await enrollment.save();
+      }
+    } catch (error) {
+      console.error('Error updating enrollment progress:', error);
+      // Continue execution even if progress update fails
     }
     
     return NextResponse.json({ 
@@ -132,7 +201,8 @@ export async function POST(request) {
     console.error('Error creating task submission:', error);
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 });
   }
 } 

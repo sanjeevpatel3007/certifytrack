@@ -58,13 +58,28 @@ export async function submitTask(submissionData) {
       return null;
     }
     
+    // Validate files to ensure correct structure
+    const validatedFiles = Array.isArray(files) ? files.map(file => ({
+      url: file.url || '',
+      name: file.name || 'Unnamed file',
+      type: file.type || 'unknown',
+      size: typeof file.size === 'number' ? file.size : 0,
+      publicId: file.publicId || ''
+    })) : [];
+    
+    // Validate links to ensure correct structure
+    const validatedLinks = Array.isArray(links) ? links.map(link => ({
+      url: link.url || '',
+      description: link.description || ''
+    })) : [];
+    
     const result = await post('task-submissions', {
       taskId,
       userId,
       batchId,
-      content,
-      files,
-      links
+      content: content || '',
+      files: validatedFiles,
+      links: validatedLinks
     });
     
     if (result.success) {
@@ -89,6 +104,30 @@ export async function submitTask(submissionData) {
  */
 export async function updateSubmission(submissionId, updateData) {
   try {
+    // If files are provided, ensure they have the right format
+    if (updateData.files) {
+      updateData.files = updateData.files.map(file => ({
+        url: file.url || '',
+        name: file.name || 'Unnamed file',
+        type: file.type || 'unknown',
+        size: typeof file.size === 'number' ? file.size : 0,
+        publicId: file.publicId || ''
+      }));
+    }
+    
+    // If links are provided, ensure they have the right format
+    if (updateData.links) {
+      updateData.links = updateData.links.map(link => ({
+        url: link.url || '',
+        description: link.description || ''
+      }));
+    }
+    
+    // Ensure content is a string
+    if (updateData.content !== undefined) {
+      updateData.content = updateData.content || '';
+    }
+    
     const result = await put(`task-submissions/${submissionId}`, updateData);
     
     if (result.success) {
@@ -165,7 +204,24 @@ export async function reviewSubmission(submissionId, reviewData) {
  * @returns {Object} File details including URL
  */
 export async function uploadFile(file) {
+  if (!file || !(file instanceof File)) {
+    console.error('Invalid file object provided:', file);
+    toast.error('Invalid file provided');
+    return null;
+  }
+  
+  // Create a unique loading toast ID
+  const loadingToastId = `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  toast.loading(`Uploading ${file.name}...`, { id: loadingToastId });
+  
   try {
+    // Validate file size (max 10MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`File too large: ${file.name} (max 10MB)`, { id: loadingToastId });
+      return null;
+    }
+    
     // Create FormData
     const formData = new FormData();
     formData.append('file', file);
@@ -177,20 +233,31 @@ export async function uploadFile(file) {
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error ${response.status}`);
+      let errorMessage = `HTTP error ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        // If parsing JSON fails, use the default message
+      }
+      
+      toast.error(`Failed to upload ${file.name}: ${errorMessage}`, { id: loadingToastId });
+      throw new Error(errorMessage);
     }
     
     const data = await response.json();
     
     if (data.success) {
+      toast.success(`Uploaded ${file.name} successfully`, { id: loadingToastId });
       return data.file;
     } else {
+      toast.error(`Failed to upload ${file.name}: ${data.error || 'Unknown error'}`, { id: loadingToastId });
       throw new Error(data.error || 'Failed to upload file');
     }
   } catch (error) {
     console.error('Error uploading file:', error);
-    toast.error(error.message || 'Failed to upload file');
+    const errorMessage = error.message || 'Failed to upload file';
+    toast.error(`Error uploading ${file.name}: ${errorMessage}`, { id: loadingToastId });
     return null;
   }
 }

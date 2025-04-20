@@ -290,6 +290,15 @@ export function calculateEndDate(startDate, durationInWeeks) {
 // Learning page related functions
 export async function getTasksGroupedByDay(batchId) {
   try {
+    // First get the batch to determine its duration
+    const batch = await fetchBatchById(batchId);
+    if (!batch) {
+      throw new Error('Batch not found');
+    }
+    
+    const totalDays = batch.durationDays || 0;
+    
+    // Fetch tasks
     const tasks = await fetchTasksByBatchId(batchId);
     
     // Group tasks by day number
@@ -302,15 +311,37 @@ export async function getTasksGroupedByDay(batchId) {
       return acc;
     }, {});
     
-    // Convert to array and sort by day number
-    const sortedDays = Object.keys(groupedTasks)
-      .map(dayNumber => ({
-        dayNumber: parseInt(dayNumber),
-        tasks: groupedTasks[dayNumber].sort((a, b) => a.order - b.order)
-      }))
-      .sort((a, b) => a.dayNumber - b.dayNumber);
+    // Create array for all days, including those without tasks
+    const allDays = [];
     
-    return sortedDays;
+    // For each day in the batch duration, create an entry
+    for (let day = 1; day <= totalDays; day++) {
+      // If tasks exist for this day, use them; otherwise create a placeholder
+      if (groupedTasks[day] && groupedTasks[day].length > 0) {
+        allDays.push({
+          dayNumber: day,
+          tasks: groupedTasks[day].sort((a, b) => a.order - b.order)
+        });
+      } else {
+        // Create a placeholder "Coming Soon" task for this day
+        allDays.push({
+          dayNumber: day,
+          tasks: [{
+            _id: `placeholder-${day}`,
+            title: 'Coming Soon',
+            description: 'This task will be available soon',
+            dayNumber: day,
+            isPlaceholder: true,
+            contentType: 'coming-soon'
+          }]
+        });
+      }
+    }
+    
+    // Sort days by day number
+    allDays.sort((a, b) => a.dayNumber - b.dayNumber);
+    
+    return allDays;
   } catch (error) {
     console.error('Error getting tasks grouped by day:', error);
     toast.error('Failed to load course tasks');
