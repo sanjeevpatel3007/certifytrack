@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FiDownload, FiShare2 } from 'react-icons/fi';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
+import CertificateBackground from '@/app/certificate-background';
 
 export default function Certificate({ 
   certificateData = {
@@ -17,7 +18,7 @@ export default function Certificate({
     issuerLogo: '',
     signature: '',
     verificationUrl: '',
-    backgroundImage: '/certificate-bg.jpg'
+    backgroundImage: './certificate/bg.png'
   },
   showControls = true,
   className = ''
@@ -100,8 +101,8 @@ export default function Certificate({
         className="relative w-full aspect-[1.414/1] bg-white shadow-lg rounded-lg overflow-hidden"
         style={{ maxWidth: '800px', margin: '0 auto' }}
       >
-        {/* Background Image */}
-        {certificateData.backgroundImage && (
+        {/* Background Image or SVG Background */}
+        {certificateData.backgroundImage ? (
           <div className="absolute inset-0 w-full h-full">
             <Image
               src={certificateData.backgroundImage}
@@ -109,6 +110,13 @@ export default function Certificate({
               fill
               className="object-cover"
               priority
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 w-full h-full">
+            <CertificateBackground 
+              primaryColor="#4285F4"
+              secondaryColor="#34A853"
             />
           </div>
         )}

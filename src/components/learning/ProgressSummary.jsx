@@ -11,8 +11,11 @@ import {
   FiChevronUp,
   FiLock,
   FiCheck,
+  FiDownload
 } from 'react-icons/fi';
 import { formatDate } from '@/lib/fetchUtils';
+import Link from 'next/link';
+import CertificateIcon from '@/components/CertificateIcon';
 
 export default function ProgressSummary({
   batch,
@@ -57,6 +60,8 @@ export default function ProgressSummary({
     setIsExpanded(!isExpanded);
   };
 
+  const isCertificateAvailable = progress === 100;
+
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
       <div className="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center">
@@ -100,6 +105,36 @@ export default function ProgressSummary({
               className="bg-blue-600 h-2.5 rounded-full"
               style={{ width: `${progress}%` }}
             ></div>
+          </div>
+        </div>
+
+        {/* Certificate Status */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <CertificateIcon 
+                isUnlocked={isCertificateAvailable} 
+                size="lg" 
+                className="mr-3" 
+              />
+              <div>
+                <div className="text-sm font-medium text-gray-800">
+                  Course Certificate
+                </div>
+                <div className="text-xs text-gray-500">
+                  {isCertificateAvailable ? 'You\'ve earned your certificate!' : `Complete ${100 - progress}% more to earn your certificate`}
+                </div>
+              </div>
+            </div>
+            {isCertificateAvailable && (
+              <Link 
+                href={`/certificate/${batch?._id}`}
+                className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                <FiDownload className="w-4 h-4 mr-1" />
+                <span>View Certificate</span>
+              </Link>
+            )}
           </div>
         </div>
 
