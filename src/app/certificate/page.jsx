@@ -88,7 +88,7 @@ export default function CertificatesPage() {
     issuerName: 'CertifyTrack',
     issuerLogo: '/logo.png',
     verificationUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/verify-certificate/sample`,
-    backgroundImage: '/certificate-bg.jpg'
+    backgroundImage: '/certificate/bg.png'
   };
   
   return (

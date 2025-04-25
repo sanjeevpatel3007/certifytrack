@@ -19,19 +19,16 @@ import {
   FiGrid
 } from 'react-icons/fi';
 import { useState } from 'react';
-import { logoutUser } from '@/store/authStore';
+import { logoutUser, useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const [batchesOpen, setBatchesOpen] = useState(true);
-  const [tasksOpen, setTasksOpen] = useState(true);
+  const { user } = useAuthStore();
   
   const toggleSidebar = () => setCollapsed(!collapsed);
-  const toggleBatches = () => setBatchesOpen(!batchesOpen);
-  const toggleTasks = () => setTasksOpen(!tasksOpen);
   
   const handleLogout = () => {
     logoutUser();
@@ -53,28 +50,10 @@ export default function AdminSidebar() {
         <FiMenu size={16} className="text-white" />
       </button>
       
-      <div className="flex items-center justify-center py-6 border-b border-slate-700/50">
-        {!collapsed ? (
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <span className="font-bold text-xl">CT</span>
-            </div>
-            <h2 className="text-xl font-bold">Admin Panel</h2>
-          </div>
-        ) : (
-          <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <span className="font-bold text-xl">CT</span>
-          </div>
-        )}
-      </div>
+     
       
       <div className="p-4">
-        {!collapsed && (
-          <div className="mb-4 px-4">
-            <h3 className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Main</h3>
-          </div>
-        )}
-        
+       
         <nav className="space-y-1.5">
           <Link 
             href="/admin"
@@ -94,101 +73,31 @@ export default function AdminSidebar() {
             </div>
           )}
           
-          {/* Batches section */}
-          <div>
-            <button 
-              onClick={toggleBatches}
-              className={`w-full flex items-center justify-between rounded-lg py-3 px-4 ${
-                isActive('/admin/batches')
-                  ? 'bg-indigo-700 text-white shadow-md' 
-                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-              } transition-all duration-200`}
-            >
-              <div className="flex items-center">
-                <FiBookOpen size={collapsed ? 22 : 18} />
-                {!collapsed && <span className="ml-3">Batches</span>}
-              </div>
-              {!collapsed && (
-                <FiChevronDown 
-                  size={16} 
-                  className={`transition-transform duration-200 ${batchesOpen ? 'rotate-180' : ''}`} 
-                />
-              )}
-            </button>
-            
-            {(batchesOpen || collapsed) && (
-              <div className={`${collapsed ? 'mt-1 space-y-1.5' : 'ml-9 mt-1 space-y-1.5'}`}>
-                <Link 
-                  href="/admin/batches"
-                  className={`flex items-center py-2 px-4 rounded-lg ${
-                    pathname === '/admin/batches' 
-                      ? 'bg-indigo-600/20 text-indigo-300' 
-                      : 'text-slate-400 hover:bg-slate-700/30 hover:text-slate-200'
-                  } transition-all duration-200 text-sm`}
-                >
-                  {collapsed ? <FiBookOpen size={18} /> : <span>All Batches</span>}
-                </Link>
-                <Link 
-                  href="/admin/batches/create"
-                  className={`flex items-center py-2 px-4 rounded-lg ${
-                    pathname === '/admin/batches/create' 
-                      ? 'bg-indigo-600/20 text-indigo-300' 
-                      : 'text-slate-400 hover:bg-slate-700/30 hover:text-slate-200'
-                  } transition-all duration-200 text-sm`}
-                >
-                  {collapsed ? <FiPlus size={18} /> : <span>Create Batch</span>}
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Batches section - simplified */}
+          <Link 
+            href="/admin/batches"
+            className={`flex items-center rounded-lg py-3 px-4 ${
+              isActive('/admin/batches')
+                ? 'bg-indigo-700 text-white shadow-md' 
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            } transition-all duration-200`}
+          >
+            <FiBookOpen size={collapsed ? 22 : 18} />
+            {!collapsed && <span className="ml-3">Batches</span>}
+          </Link>
           
-          {/* Tasks section */}
-          <div>
-            <button 
-              onClick={toggleTasks}
-              className={`w-full flex items-center justify-between rounded-lg py-3 px-4 ${
-                isActive('/admin/tasks')
-                  ? 'bg-indigo-700 text-white shadow-md' 
-                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-              } transition-all duration-200`}
-            >
-              <div className="flex items-center">
-                <FiCheckSquare size={collapsed ? 22 : 18} />
-                {!collapsed && <span className="ml-3">Tasks</span>}
-              </div>
-              {!collapsed && (
-                <FiChevronDown 
-                  size={16} 
-                  className={`transition-transform duration-200 ${tasksOpen ? 'rotate-180' : ''}`} 
-                />
-              )}
-            </button>
-            
-            {(tasksOpen || collapsed) && (
-              <div className={`${collapsed ? 'mt-1 space-y-1.5' : 'ml-9 mt-1 space-y-1.5'}`}>
-                <Link 
-                  href="/admin/tasks"
-                  className={`flex items-center py-2 px-4 rounded-lg ${
-                    pathname === '/admin/tasks' 
-                      ? 'bg-indigo-600/20 text-indigo-300' 
-                      : 'text-slate-400 hover:bg-slate-700/30 hover:text-slate-200'
-                  } transition-all duration-200 text-sm`}
-                >
-                  {collapsed ? <FiCheckSquare size={18} /> : <span>All Tasks</span>}
-                </Link>
-                <Link 
-                  href="/admin/tasks/create"
-                  className={`flex items-center py-2 px-4 rounded-lg ${
-                    pathname === '/admin/tasks/create' 
-                      ? 'bg-indigo-600/20 text-indigo-300' 
-                      : 'text-slate-400 hover:bg-slate-700/30 hover:text-slate-200'
-                  } transition-all duration-200 text-sm`}
-                >
-                  {collapsed ? <FiPlus size={18} /> : <span>Create Task</span>}
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Tasks section - simplified */}
+          <Link 
+            href="/admin/tasks"
+            className={`flex items-center rounded-lg py-3 px-4 ${
+              isActive('/admin/tasks')
+                ? 'bg-indigo-700 text-white shadow-md' 
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            } transition-all duration-200`}
+          >
+            <FiCheckSquare size={collapsed ? 22 : 18} />
+            {!collapsed && <span className="ml-3">Tasks</span>}
+          </Link>
           
           {!collapsed && (
             <div className="my-4 px-4">
@@ -260,8 +169,8 @@ export default function AdminSidebar() {
                 <FiUser size={16} />
               </div>
               <div>
-                <p className="text-sm font-medium leading-none">Admin User</p>
-                <p className="text-xs text-slate-400 mt-1">admin@certifytrack.com</p>
+                <p className="text-sm font-medium leading-none">{user?.name || 'Admin User'}</p>
+                <p className="text-xs text-slate-400 mt-1">{user?.email || 'admin@certifytrack.com'}</p>
               </div>
             </div>
           </div>
