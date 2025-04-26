@@ -50,17 +50,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-slate-50 py-1 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center justify-center h-14 w-14 rounded-xl bg-blue-600 text-white text-xl font-bold shadow-md mb-6">CT</Link>
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">
-            Welcome back
-          </h2>
-          <p className="text-slate-600">
-            Sign in to your account to continue
-          </p>
-        </div>
+       
         
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md flex items-start" role="alert">

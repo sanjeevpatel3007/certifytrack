@@ -10,7 +10,7 @@ const Testimonials = () => {
       name: 'Sarah Johnson',
       role: 'Frontend Developer',
       company: 'Tech Solutions Inc.',
-      avatar: '/images/testimonials/avatar-1.jpg',
+      avatar: '/testimonials/avtar.png',
       quote: 'The Web Development course was exactly what I needed to take my skills to the next level. The instructors were knowledgeable and the projects were challenging but rewarding.',
       stars: 5
     },
@@ -18,7 +18,7 @@ const Testimonials = () => {
       name: 'Michael Chen',
       role: 'Data Scientist',
       company: 'Data Insights Co.',
-      avatar: '/images/testimonials/avatar-2.jpg',
+      avatar: '/testimonials/avtar.png',
       quote: 'I completed the Data Science certification and immediately saw opportunities open up. The curriculum was comprehensive and the hands-on projects gave me practical experience I could showcase.',
       stars: 5
     },
@@ -26,7 +26,7 @@ const Testimonials = () => {
       name: 'Emily Rodriguez',
       role: 'UX Designer',
       company: 'Creative Digital',
-      avatar: '/images/testimonials/avatar-3.jpg',
+      avatar: '/testimonials/avtar.png',
       quote: 'The UX/UI Design course helped me transition from graphic design to UX. Within three months of completing the certification, I landed my dream job at a top agency.',
       stars: 4
     }
@@ -179,19 +179,20 @@ const Testimonials = () => {
           <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-6">Trusted by professionals from top companies</p>
           <div className="flex flex-wrap justify-center gap-8 opacity-70">
             <div className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-              <img src="/images/brands/google.svg" alt="Google" className="h-full" />
+              <img src="/brands/google.png" alt="Google" className="h-full" />
             </div>
             <div className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-              <img src="/images/brands/microsoft.svg" alt="Microsoft" className="h-full" />
+              <img src="/brands/netflix.png" alt="Netflix" className="h-full" />
             </div>
             <div className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-              <img src="/images/brands/amazon.svg" alt="Amazon" className="h-full" />
+              <img src="/brands/google.png" alt="Microsoft" className="h-full" />
             </div>
             <div className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-              <img src="/images/brands/netflix.svg" alt="Netflix" className="h-full" />
+              <img src="/brands/amazon.png" alt="Amazon" className="h-full" />
             </div>
+           
             <div className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-              <img src="/images/brands/meta.svg" alt="Meta" className="h-full" />
+              <img src="/brands/netflix.png" alt="Meta" className="h-full" />
             </div>
           </div>
         </div>

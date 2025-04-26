@@ -68,16 +68,7 @@ const Hero = () => {
           <div className="relative hidden lg:flex justify-end">
             <div className="relative h-[500px] w-[500px]">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-transparent rounded-full filter blur-3xl opacity-30"></div>
-              <div className="relative z-10">
-                <Image 
-                  src="/images/hero-image.png" 
-                  alt="Students learning online" 
-                  width={500}
-                  height={500}
-                  className="object-contain drop-shadow-2xl"
-                  priority
-                />
-              </div>
+              
               
               {/* Floating badges */}
               <div className="absolute top-20 -left-10 bg-white rounded-lg p-3 shadow-xl animate-float">

@@ -13,25 +13,25 @@ export default function AboutPage() {
       name: 'Sarah Johnson',
       role: 'Founder & CEO',
       bio: 'Former Education Director with 15+ years experience in professional training and certification.',
-      image: '/images/team/team-1.jpg'
+      image: '/team/avtar.png'
     },
     {
       name: 'Robert Chen',
       role: 'CTO',
       bio: 'Tech leader with background in educational technology and scalable learning platforms.',
-      image: '/images/team/team-2.jpg'
+      image: '/team/avtar.png'
     },
     {
       name: 'Emily Rodriguez',
       role: 'Director of Curriculum',
       bio: 'Expert in instructional design with focus on creating engaging certification programs.',
-      image: '/images/team/team-3.jpg'
+      image: '/team/avtar.png'
     },
     {
       name: 'David Park',
       role: 'Lead Instructor',
       bio: 'Award-winning educator specialized in technical certification programs and workshops.',
-      image: '/images/team/team-4.jpg'
+      image: '/team/avtar.png'
     }
   ];
 
@@ -137,7 +137,7 @@ export default function AboutPage() {
             <div className="relative">
               <div className="relative z-10 rounded-2xl overflow-hidden shadow-xl">
                 <Image
-                  src="/images/about/about-main.jpg" 
+                  src="/image.png" 
                   width={600}
                   height={450}
                   alt="CertifyTrack team"

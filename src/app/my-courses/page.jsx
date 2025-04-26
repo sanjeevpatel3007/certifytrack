@@ -9,8 +9,6 @@ import { FiBook, FiCheck, FiClock } from 'react-icons/fi';
 import { useAuthStore } from '@/store/authStore';
 import { useBatchStore } from '@/store/batchStore';
 
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
 import CourseSkeleton from '@/components/Loading/Course';
 
 export default function MyCoursesPage() {
@@ -58,14 +56,13 @@ export default function MyCoursesPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <CourseSkeleton />
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -100,7 +97,7 @@ export default function MyCoursesPage() {
         </div>
       </main>
 
-      <Footer />
+     
     </div>
   );
 }

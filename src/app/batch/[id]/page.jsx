@@ -109,8 +109,83 @@ export default function BatchDetailPage({ params }) {
     return (
       <div className="min-h-screen bg-gray-50">
         <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          {/* Hero Section Skeleton */}
+          <div className="relative h-80 rounded-xl overflow-hidden mb-8 bg-gray-200 animate-pulse">
+            <div className="absolute bottom-0 left-0 p-8 w-full">
+              <div className="w-1/2 h-8 bg-gray-300 rounded mb-2"></div>
+              <div className="w-1/3 h-6 bg-gray-300 rounded mb-4"></div>
+              <div className="flex flex-wrap gap-4">
+                <div className="w-32 h-6 bg-gray-300 rounded"></div>
+                <div className="w-32 h-6 bg-gray-300 rounded"></div>
+                <div className="w-32 h-6 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content Skeleton */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-6"></div>
+                <div className="space-y-3 mb-8">
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                
+                <div className="h-8 w-40 bg-gray-200 rounded animate-pulse mb-4"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="flex items-start">
+                      <div className="w-5 h-5 rounded-full bg-gray-200 mr-3 flex-shrink-0 animate-pulse"></div>
+                      <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="h-8 w-40 bg-gray-200 rounded animate-pulse mb-4"></div>
+                <div className="space-y-3 mb-8">
+                  {[...Array(2)].map((_, i) => (
+                    <div key={i} className="flex items-start">
+                      <div className="w-5 h-5 rounded-full bg-gray-200 mr-3 flex-shrink-0 animate-pulse"></div>
+                      <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="h-8 w-40 bg-gray-200 rounded animate-pulse mb-4"></div>
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-start">
+                      <div className="w-5 h-5 rounded-full bg-gray-200 mr-3 flex-shrink-0 animate-pulse"></div>
+                      <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Sidebar Skeleton */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm p-6 mb-8 animate-pulse">
+                <div className="h-8 w-40 bg-gray-200 rounded mb-6"></div>
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded-full bg-gray-200 mr-3"></div>
+                    <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded-full bg-gray-200 mr-3"></div>
+                    <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded-full bg-gray-200 mr-3"></div>
+                    <div className="h-4 w-3/5 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+                <div className="h-10 w-full bg-gray-200 rounded mb-4"></div>
+              </div>
+            </div>
           </div>
         </main>
       </div>

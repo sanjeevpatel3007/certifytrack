@@ -102,7 +102,6 @@ export default function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center justify-center h-14 w-14 rounded-xl bg-blue-600 text-white text-xl font-bold shadow-md mb-6">CT</Link>
           <h2 className="text-3xl font-bold text-slate-900 mb-2">
             Create an account
           </h2>

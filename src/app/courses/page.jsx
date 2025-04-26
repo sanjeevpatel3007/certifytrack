@@ -41,8 +41,13 @@ export default function CoursesPage() {
         
         // If user is logged in, check enrollments
         if (isLoggedIn && user?._id) {
-          const enrollments = await fetchUserEnrollments(user._id);
-          setUserEnrollments(enrollments);
+          try {
+            const enrollments = await fetchUserEnrollments(user._id);
+            setUserEnrollments(enrollments);
+          } catch (enrollError) {
+            console.error('Error fetching enrollments:', enrollError);
+            // Don't show error toast here - we still have courses to display
+          }
         }
       } catch (error) {
         console.error('Error loading courses:', error);
@@ -172,115 +177,147 @@ export default function CoursesPage() {
         </div>
 
         {/* Course List */}
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <CourseGridSkeleton />
-          </div>
-        ) : filteredBatches.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-xl shadow-sm">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-              <FiSearch className="text-gray-400 w-8 h-8" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">No courses found</h3>
-            <p className="text-gray-500 max-w-md mx-auto mb-6">
-              We couldn't find any courses matching your criteria. Try adjusting your search or filter options.
-            </p>
-            <button 
-              onClick={() => {
-                setSearchTerm('');
-                setFilter('all');
-              }}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Clear Filters
-            </button>
-          </div>
-        ) : (
-          <div id="course-grid">
-            {filter !== 'all' && (
-              <div className="flex items-center gap-2 mb-6 text-lg text-gray-700">
-                <FiTag className="text-blue-600" />
-                <span className="font-medium">
-                  {filter === 'enrolled' ? 'My Enrolled Courses' : 'Available Courses'}
-                </span>
-                <span className="text-gray-500 text-sm ml-2">
-                  ({filteredBatches.length} {filteredBatches.length === 1 ? 'course' : 'courses'})
-                </span>
-           </div>
-            )}
-
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredBatches.map(batch => (
-              <div 
-                key={batch._id}
-                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group"
-              >
-                <div className="relative h-48">
-                  <Image
-                    src={batch.bannerImage}
-                    alt={batch.title}
-                    fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    {isLoggedIn && isEnrolled(batch._id) && (
-                      <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-md">
-                        Enrolled
-                      </div>
-                    )}
-                  <div className="absolute bottom-0 left-0 p-4 text-white">
-                    <h2 className="text-xl font-bold line-clamp-2">{batch.title}</h2>
-                    <p className="text-sm opacity-90">{batch.courseName}</p>
-                  </div>
-                </div>
-                
+        <div id="course-grid">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse">
+                  {/* Image placeholder */}
+                  <div className="h-48 bg-gray-200"></div>
+                  
                   <div className="p-5">
-                  <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <FiCalendar className="mr-1 text-blue-500" />
-                      <span>{formatDate(batch.startDate)}</span>
+                    {/* Metadata placeholders */}
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-20 bg-gray-200 rounded"></div>
                     </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <FiClock className="mr-1 text-blue-500" />
-                      <span>{batch.durationDays} days</span>
+                    
+                    {/* Title placeholder */}
+                    <div className="h-6 w-3/4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 w-1/2 bg-gray-200 rounded mb-4"></div>
+                    
+                    {/* Description placeholders */}
+                    <div className="space-y-2 mb-4">
+                      <div className="h-3 w-full bg-gray-200 rounded"></div>
+                      <div className="h-3 w-full bg-gray-200 rounded"></div>
+                      <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
+                    </div>
+                    
+                    {/* Button placeholder */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="h-8 w-24 bg-gray-200 rounded"></div>
+                      <div className="h-6 w-6 rounded-full bg-gray-200"></div>
                     </div>
                   </div>
-                  
-                    <div className="mb-5">
-                      <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-2">
-                        <FiUsers />
-                        </div>
-                        <p className="text-gray-700 font-medium">{batch.instructor}</p>
-                      </div>
-                      <p className="text-gray-600 text-sm line-clamp-2">
-                      {batch.description}
-                    </p>
-                  </div>
-                  
-                  {isLoggedIn && isEnrolled(batch._id) ? (
-                    <Link 
-                      href={`/batch/${batch._id}`} 
-                        className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition-colors"
-                    >
-                      <span>Continue Learning</span>
-                      <FiArrowRight className="ml-2" />
-                    </Link>
-                  ) : (
-                    <Link 
-                      href={`/batch/${batch._id}`} 
-                        className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-colors"
-                    >
-                      <span>View Details</span>
-                      <FiArrowRight className="ml-2" />
-                    </Link>
-                  )}
                 </div>
+              ))}
+            </div>
+          ) : filteredBatches.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <FiSearch className="text-gray-400 w-8 h-8" />
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">No courses found</h3>
+              <p className="text-gray-500 max-w-md mx-auto mb-6">
+                We couldn't find any courses matching your criteria. Try adjusting your search or filter options.
+              </p>
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilter('all');
+                }}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            <>
+              {filter !== 'all' && (
+                <div className="flex items-center gap-2 mb-6 text-lg text-gray-700">
+                  <FiTag className="text-blue-600" />
+                  <span className="font-medium">
+                    {filter === 'enrolled' ? 'My Enrolled Courses' : 'Available Courses'}
+                  </span>
+                  <span className="text-gray-500 text-sm ml-2">
+                    ({filteredBatches.length} {filteredBatches.length === 1 ? 'course' : 'courses'})
+                  </span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredBatches.map(batch => (
+                  <div 
+                    key={batch._id}
+                    className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group"
+                  >
+                    <div className="relative h-48">
+                      <Image
+                        src={batch.bannerImage}
+                        alt={batch.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                      {isLoggedIn && isEnrolled(batch._id) && (
+                        <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-md">
+                          Enrolled
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 p-4 text-white">
+                        <h2 className="text-xl font-bold line-clamp-2">{batch.title}</h2>
+                        <p className="text-sm opacity-90">{batch.courseName}</p>
+                      </div>
+                    </div>
+                  
+                    <div className="p-5">
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FiCalendar className="mr-1 text-blue-500" />
+                          <span>{formatDate(batch.startDate)}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FiClock className="mr-1 text-blue-500" />
+                          <span>{batch.durationDays} days</span>
+                        </div>
+                      </div>
+                    
+                      <div className="mb-5">
+                        <div className="flex items-center mb-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-2">
+                            <FiUsers />
+                          </div>
+                          <p className="text-gray-700 font-medium">{batch.instructor}</p>
+                        </div>
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {batch.description}
+                        </p>
+                      </div>
+                      
+                      {isLoggedIn && isEnrolled(batch._id) ? (
+                        <Link 
+                          href={`/batch/${batch._id}`} 
+                          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition-colors"
+                        >
+                          <span>Continue Learning</span>
+                          <FiArrowRight className="ml-2" />
+                        </Link>
+                      ) : (
+                        <Link 
+                          href={`/batch/${batch._id}`} 
+                          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-colors"
+                        >
+                          <span>View Details</span>
+                          <FiArrowRight className="ml-2" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
-         </div>
-        )}
       </main>
       
       <Footer />
