@@ -7,8 +7,8 @@ import Link from 'next/link';
 import { FiCheck, FiX, FiArrowLeft } from 'react-icons/fi';
 import { useBatchStore } from '@/store/batchStore';
 import { useTaskStore } from '@/store/taskStore';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import Certificate from '@/components/Certificate';
 
 export default function VerifyCertificatePage({ params }) {
   const { batchId, userId } = params;
@@ -24,6 +24,7 @@ export default function VerifyCertificatePage({ params }) {
     issueDate: '',
     progress: 0
   });
+  const [certificateData, setCertificateData] = useState(null);
 
   useEffect(() => {
     const verifyData = async () => {
@@ -75,9 +76,12 @@ export default function VerifyCertificatePage({ params }) {
         }
         
         // Certificate is valid
+        const studentName = userData.user.name || userData.user.username;
+        
+        // Create verification result
         setVerification({
           isValid: true,
-          studentName: userData.user.name || userData.user.username,
+          studentName,
           courseName: batchData.title,
           issueDate: new Date().toLocaleDateString('en-US', {
             year: 'numeric',
@@ -85,6 +89,18 @@ export default function VerifyCertificatePage({ params }) {
             day: 'numeric'
           }),
           progress: progressData.progress
+        });
+        
+        // Create certificate data for display
+        setCertificateData({
+          id: `CERT-${batchId.substring(0, 8)}-${userId.substring(0, 8)}`,
+          recipientName: studentName,
+          courseName: batchData.title,
+          issueDate: new Date().toISOString(),
+          issuerName: batchData.instructor || 'CertifyTrack',
+          issuerLogo: '/logo.png',
+          verificationUrl: `${window.location.origin}/verify-certificate/${batchId}/${userId}`,
+          backgroundImage: '/certificate/bg.png'
         });
       } catch (err) {
         console.error('Error verifying certificate:', err);
@@ -102,7 +118,7 @@ export default function VerifyCertificatePage({ params }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+     
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-6">
@@ -158,6 +174,17 @@ export default function VerifyCertificatePage({ params }) {
                   <p className="font-medium text-gray-800">{verification.progress}%</p>
                 </div>
               </div>
+              
+              {certificateData && (
+                <div className="mt-8 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Certificate Preview</h3>
+                  <Certificate 
+                    certificateData={certificateData}
+                    showControls={true}
+                    className="mb-4"
+                  />
+                </div>
+              )}
               
               <p className="text-gray-600 text-sm">
                 This certificate verifies that the student has successfully completed all requirements for this course.

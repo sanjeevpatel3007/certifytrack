@@ -74,7 +74,7 @@ export default function CertificatePage({ params }) {
           issuerName: batchData.instructor || 'CertifyTrack',
           issuerLogo: '/logo.png',
           verificationUrl: `${window.location.origin}/verify-certificate/${batchId}/${user._id}`,
-          backgroundImage: '/certificate-bg.jpg'
+          backgroundImage: '/certificate/bg.png'
         });
       } catch (err) {
         console.error('Error loading certificate:', err);

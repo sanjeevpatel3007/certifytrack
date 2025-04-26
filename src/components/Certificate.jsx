@@ -19,7 +19,7 @@ export default function Certificate({
     issuerLogo: '',
     signature: '',
     verificationUrl: '',
-    backgroundImage: './certificate/bg.png'
+    backgroundImage: '/certificate/bg.png'
   },
   showControls = true,
   className = ''
@@ -114,7 +114,7 @@ export default function Certificate({
         {certificateData.backgroundImage ? (
           <div className="absolute inset-0 w-full h-full">
             <Image
-              src={certificateData.backgroundImage}
+              src="/certificate/bg.png"
               alt="Certificate Background"
               fill
               className="object-cover"
@@ -198,6 +198,8 @@ export default function Certificate({
                       value={certificateData.verificationUrl}
                       size={80}
                       level="H"
+                      fgColor="#000000"
+                      bgColor="#FFFFFF"
                     />
                   </div>
                   <p className="text-xs text-gray-600 mt-1">Scan to verify</p>
