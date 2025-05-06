@@ -47,11 +47,15 @@ export default function CreateBatchPage() {
   
   // Handle comma-separated list inputs
   const handleListInput = (e, field) => {
-    const items = e.target.value.split(',').map(item => item.trim()).filter(Boolean);
-    setFormData({
-      ...formData,
+    const value = e.target.value;
+    const items = value.endsWith(',') 
+      ? [...value.slice(0, -1).split(',').map(item => item.trim()).filter(Boolean), '']
+      : value.split(',').map(item => item.trim()).filter(Boolean);
+    
+    setFormData(prev => ({
+      ...prev,
       [field]: items
-    });
+    }));
   };
   
   // Handle image URL change from ImageUploader
@@ -66,8 +70,16 @@ export default function CreateBatchPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Clean up empty items from arrays before submission
+    const cleanedFormData = {
+      ...formData,
+      whatYouLearn: formData.whatYouLearn.filter(Boolean),
+      prerequisites: formData.prerequisites.filter(Boolean),
+      benefits: formData.benefits.filter(Boolean)
+    };
+    
     // Validate required fields
-    if (!formData.bannerImage) {
+    if (!cleanedFormData.bannerImage) {
       toast.error('Please upload a banner image');
       return;
     }
@@ -82,10 +94,10 @@ export default function CreateBatchPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          ...formData,
-          durationDays: parseInt(formData.durationDays, 10),
-          price: parseFloat(formData.price),
-          maxStudents: parseInt(formData.maxStudents, 10)
+          ...cleanedFormData,
+          durationDays: parseInt(cleanedFormData.durationDays, 10),
+          price: parseFloat(cleanedFormData.price),
+          maxStudents: parseInt(cleanedFormData.maxStudents, 10)
         })
       });
       

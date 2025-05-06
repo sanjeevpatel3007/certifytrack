@@ -33,13 +33,11 @@ export async function POST(request) {
   try {
     await dbConnect();
     
-    // In a real app, you would verify the user's admin status using cookies or JWT
-    
     const data = await request.json();
     
     // Validate required fields
     const requiredFields = [
-      'title', 'description', 'dayNumber', 'batchId', 'contentType'
+      'title', 'description', 'dayNumber', 'batchId', 'contents'
     ];
     
     for (const field of requiredFields) {
@@ -47,6 +45,54 @@ export async function POST(request) {
         return NextResponse.json({ 
           message: `${field} is required` 
         }, { status: 400 });
+      }
+    }
+
+    // Validate contents array
+    if (!Array.isArray(data.contents) || data.contents.length === 0) {
+      return NextResponse.json({ 
+        message: 'At least one content type is required' 
+      }, { status: 400 });
+    }
+
+    // Validate each content type
+    for (const content of data.contents) {
+      if (!content.type) {
+        return NextResponse.json({ 
+          message: 'Content type is required for each content' 
+        }, { status: 400 });
+      }
+
+      // Validate required fields based on content type
+      switch (content.type) {
+        case 'video':
+          if (!content.videoUrl) {
+            return NextResponse.json({ 
+              message: 'Video URL is required for video content' 
+            }, { status: 400 });
+          }
+          break;
+        case 'assignment':
+          if (!content.assignment) {
+            return NextResponse.json({ 
+              message: 'Assignment details are required for assignment content' 
+            }, { status: 400 });
+          }
+          break;
+        case 'reading':
+          if (!content.readingContent) {
+            return NextResponse.json({ 
+              message: 'Reading content is required for reading content' 
+            }, { status: 400 });
+          }
+          break;
+        case 'project':
+          if (!content.projectDetails) {
+            return NextResponse.json({ 
+              message: 'Project details are required for project content' 
+            }, { status: 400 });
+          }
+          break;
       }
     }
     
@@ -77,19 +123,30 @@ export async function POST(request) {
       }, { status: 409 }); // Conflict
     }
     
-    // Create new task
-    const newTask = await Task.create({
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    
-    return NextResponse.json({ 
-      message: 'Task created successfully',
-      task: newTask
-    });
+    try {
+      // Create new task
+      const newTask = await Task.create({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      return NextResponse.json({ 
+        message: 'Task created successfully',
+        task: newTask
+      });
+    } catch (validationError) {
+      console.error('Validation error:', validationError);
+      return NextResponse.json({ 
+        message: validationError.message || 'Task validation failed',
+        errors: validationError.errors
+      }, { status: 400 });
+    }
   } catch (error) {
     console.error('Error creating task:', error);
-    return NextResponse.json({ message: 'Failed to create task' }, { status: 500 });
+    return NextResponse.json({ 
+      message: error.message || 'Failed to create task',
+      error: process.env.NODE_ENV === 'development' ? error : undefined
+    }, { status: 500 });
   }
 } 

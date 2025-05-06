@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import TaskSubmission from '@/models/TaskSubmission';
 import Task from '@/models/Task';
 import Enrollment from '@/models/Enrollment';
+import User from '@/models/User';
 
 // Get submissions (with filtering)
 export async function GET(request) {

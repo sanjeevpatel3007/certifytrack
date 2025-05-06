@@ -21,14 +21,11 @@ export default function CreateTaskPage() {
     description: '',
     dayNumber: '',
     batchId: '',
-    videoUrl: '',
-    contentType: 'video',
+    contents: [],
     resources: [],
     pdfs: [],
     images: [],
     codeSnippets: [],
-    quiz: [],
-    assignment: '',
     isPublished: false
   });
   
@@ -181,6 +178,45 @@ export default function CreateTaskPage() {
     }
   };
   
+  // Function to add a new content type
+  const addContentType = () => {
+    setFormData(prev => ({
+      ...prev,
+      contents: [
+        ...prev.contents,
+        {
+          type: 'video',
+          videoUrl: '',
+          assignment: '',
+          quiz: [],
+          readingContent: '',
+          projectDetails: ''
+        }
+      ]
+    }));
+  };
+
+  // Function to remove a content type
+  const removeContentType = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      contents: prev.contents.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Function to update a content type
+  const updateContentType = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      contents: prev.contents.map((content, i) => {
+        if (i === index) {
+          return { ...content, [field]: value };
+        }
+        return content;
+      })
+    }));
+  };
+  
   // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -194,6 +230,20 @@ export default function CreateTaskPage() {
       toast.error('Please select a day');
       return;
     }
+
+    if (formData.contents.length === 0) {
+      toast.error('Please add at least one content type');
+      return;
+    }
+
+    // Add contentType for backward compatibility
+    const submissionData = {
+      ...formData,
+      contentType: formData.contents[0].type,
+      videoUrl: formData.contents[0].type === 'video' ? formData.contents[0].videoUrl : '',
+      assignment: formData.contents[0].type === 'assignment' ? formData.contents[0].assignment : '',
+      quiz: formData.contents[0].type === 'quiz' ? formData.contents[0].quiz : []
+    };
     
     const loadingToast = toast.loading('Creating task...');
     setIsSubmitting(true);
@@ -204,7 +254,7 @@ export default function CreateTaskPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(submissionData)
       });
       
       if (!response.ok) {
@@ -321,69 +371,129 @@ export default function CreateTaskPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Content Type *
-                  </label>
-                  <select
-                    name="contentType"
-                    value={formData.contentType}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  >
-                    <option value="video">Video</option>
-                    <option value="quiz">Quiz</option>
-                    <option value="assignment">Assignment</option>
-                    <option value="reading">Reading</option>
-                    <option value="project">Project</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  rows="4"
-                  required
-                ></textarea>
-              </div>
-              
-              {formData.contentType === 'video' && (
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Video URL
-                  </label>
-                  <input
-                    type="url"
-                    name="videoUrl"
-                    value={formData.videoUrl}
-                    onChange={handleChange}
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              )}
-              
-              {formData.contentType === 'assignment' && (
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assignment
+                    Description *
                   </label>
                   <textarea
-                    name="assignment"
-                    value={formData.assignment}
+                    name="description"
+                    value={formData.description}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     rows="4"
-                    placeholder="Assignment instructions or problem statement..."
+                    required
                   ></textarea>
                 </div>
-              )}
+              </div>
+            </div>
+            
+            {/* Content Types Section */}
+            <div className="border-b pb-6 px-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-medium">Content Types</h2>
+                <button
+                  type="button"
+                  onClick={addContentType}
+                  className="flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <FiPlus className="mr-2 h-4 w-4" /> Add Content Type
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {formData.contents.map((content, index) => (
+                  <div key={index} className="border rounded-lg p-4 relative">
+                    <button
+                      type="button"
+                      onClick={() => removeContentType(index)}
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                    >
+                      <FiX className="h-5 w-5" />
+                    </button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Content Type *
+                        </label>
+                        <select
+                          value={content.type}
+                          onChange={(e) => updateContentType(index, 'type', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          required
+                        >
+                          <option value="video">Video</option>
+                          <option value="quiz">Quiz</option>
+                          <option value="assignment">Assignment</option>
+                          <option value="reading">Reading</option>
+                          <option value="project">Project</option>
+                        </select>
+                      </div>
+
+                      {content.type === 'video' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Video URL
+                          </label>
+                          <input
+                            type="url"
+                            value={content.videoUrl || ''}
+                            onChange={(e) => updateContentType(index, 'videoUrl', e.target.value)}
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      )}
+
+                      {content.type === 'assignment' && (
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Assignment Details
+                          </label>
+                          <textarea
+                            value={content.assignment || ''}
+                            onChange={(e) => updateContentType(index, 'assignment', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            rows="4"
+                          />
+                        </div>
+                      )}
+
+                      {content.type === 'reading' && (
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Reading Content
+                          </label>
+                          <textarea
+                            value={content.readingContent || ''}
+                            onChange={(e) => updateContentType(index, 'readingContent', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            rows="4"
+                          />
+                        </div>
+                      )}
+
+                      {content.type === 'project' && (
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Project Details
+                          </label>
+                          <textarea
+                            value={content.projectDetails || ''}
+                            onChange={(e) => updateContentType(index, 'projectDetails', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            rows="4"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {formData.contents.length === 0 && (
+                  <div className="text-center py-4 text-gray-500">
+                    Click "Add Content Type" to add content to this task
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Additional Content */}
