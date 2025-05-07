@@ -10,7 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useBatchStore } from '@/store/batchStore';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import ProfileSkeleton from '@/components/Loading/profile-skelton';
+import ProfileSkeleton from '@/components/Loading/Profile-skelton';
 
 export default function ProfilePage() {
   const router = useRouter();
