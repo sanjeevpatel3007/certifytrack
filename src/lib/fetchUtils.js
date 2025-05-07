@@ -273,6 +273,9 @@ export async function getUserEnrollments(userId) {
   }
 }
 
+// Export getUserEnrollments as fetchUserEnrollments for backward compatibility
+export const fetchUserEnrollments = getUserEnrollments;
+
 // Date formatting helper function
 export function formatDate(dateString) {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
